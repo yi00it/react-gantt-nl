@@ -1,5 +1,9 @@
 # React Gantt Next Level Chart
 
+[![npm version](https://img.shields.io/npm/v/react-gantt-nl.svg)](https://www.npmjs.com/package/react-gantt-nl)
+[![npm downloads](https://img.shields.io/npm/dm/react-gantt-nl.svg)](https://www.npmjs.com/package/react-gantt-nl)
+[![license](https://img.shields.io/npm/l/react-gantt-nl.svg)](https://github.com/yi00it/react-gantt-nl/blob/main/LICENSE)
+
 A lightweight, zero-dependency React Gantt chart with **native baseline support**.
 
 ![React Gantt NL Demo](./assets/screenshot.png)
