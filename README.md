@@ -1,27 +1,35 @@
-# react-gantt-nl
+# React Gantt Next Level Chart
 
 A lightweight, zero-dependency React Gantt chart with **native baseline support**.
 
+![React Gantt NL Demo](./assets/screenshot.png)
+
+## Why This Exists
+
+I spent way too much time searching for a React Gantt chart that properly supports baselines. You know, that gray bar showing the *original* plan vs where things actually are now? Every library I found either didn't have it, or treated it as an afterthought with hacky overlays.
+
+So I built this one. Baselines are first-class citizens here.
+
+## Demo
+
+Check out the [live demo](https://yi00it.github.io/react-gantt-nl/) to see it in action!
+
 ## Features
 
-- **Native Baseline Support** - Baseline bars are first-class citizens, not overlays
-- **Drag & Resize** - Intuitive task scheduling with drag and resize
-- **Dependencies** - Support for FS, SS, FF, SF dependency types
-- **Grouping** - Hierarchical task structure with collapsible groups
-- **Critical Path** - Visual highlighting for critical tasks
-- **Milestones** - Diamond-shaped milestone markers
-- **Customizable** - Theming, custom columns, custom tooltips
-- **TypeScript** - Full TypeScript support
-- **Zero Dependencies** - Only requires React
+- **Native Baseline Support** - Finally! Compare planned vs actual schedules
+- **Drag & Resize** - Move tasks around, resize them, update progress
+- **Dependencies** - FS, SS, FF, SF - all four types with lag support
+- **Hierarchical Groups** - Nest tasks, collapse/expand groups
+- **Critical Path** - Highlight what matters most
+- **Milestones** - Diamond markers for key dates
+- **Dark & Light Themes** - Because we all have preferences
+- **Zero Dependencies** - Just React, nothing else
+- **TypeScript** - Full type safety
 
 ## Installation
 
 ```bash
 npm install react-gantt-nl
-# or
-yarn add react-gantt-nl
-# or
-pnpm add react-gantt-nl
 ```
 
 ## Quick Start
@@ -32,23 +40,22 @@ import { Gantt, GanttTask } from 'react-gantt-nl';
 const tasks: GanttTask[] = [
   {
     id: '1',
-    name: 'Foundation Work',
+    name: 'Design Phase',
     type: 'task',
     start: new Date('2024-01-01'),
     end: new Date('2024-01-15'),
-    progress: 50,
-    // Baseline dates - renders gray bar below current schedule
+    progress: 80,
+    // The magic - baseline dates!
     baselineStart: new Date('2024-01-01'),
-    baselineEnd: new Date('2024-01-10'),
+    baselineEnd: new Date('2024-01-10'), // We're running 5 days late...
   },
   {
     id: '2',
-    name: 'Framing',
+    name: 'Development',
     type: 'task',
     start: new Date('2024-01-16'),
     end: new Date('2024-01-30'),
     progress: 0,
-    dependencies: ['1'],
   },
 ];
 
@@ -56,67 +63,31 @@ function App() {
   return (
     <Gantt
       tasks={tasks}
-      config={{
-        viewMode: 'week',
-        showBaseline: true,
-      }}
-      onTaskDateChange={(event) => {
-        console.log('Task moved:', event.task.name);
-        console.log('New dates:', event.newStart, event.newEnd);
-      }}
+      config={{ viewMode: 'week', showBaseline: true }}
+      onTaskDateChange={(e) => console.log('Task moved!', e)}
     />
   );
 }
 ```
 
-## Baseline Support
+## The Baseline Thing
 
-Unlike other Gantt libraries where baselines are an afterthought, `react-gantt-nl` treats baseline dates as first-class citizens:
+This is what makes this library different. Add `baselineStart` and `baselineEnd` to any task, and you'll see a subtle gray bar showing the original plan:
 
 ```tsx
-const task: GanttTask = {
+{
   id: '1',
   name: 'My Task',
   type: 'task',
-  // Current schedule
-  start: new Date('2024-01-10'),
+  start: new Date('2024-01-15'),      // Current: starting late
   end: new Date('2024-01-25'),
   progress: 30,
-  // Original baseline (renders as gray bar below)
-  baselineStart: new Date('2024-01-01'),
-  baselineEnd: new Date('2024-01-15'),
-};
+  baselineStart: new Date('2024-01-10'), // Original plan
+  baselineEnd: new Date('2024-01-20'),
+}
 ```
 
-The baseline bar automatically:
-- Uses the same coordinate system as task bars (perfect alignment)
-- Extends the date range if baseline dates fall outside current schedule
-- Shows variance in the tooltip
-
-## Task Types
-
-```tsx
-// Regular task
-{ type: 'task', ... }
-
-// Milestone (diamond shape)
-{ type: 'milestone', ... }
-
-// Group/Summary (bracket style, aggregates children)
-{ type: 'group', ... }
-```
-
-## Dependencies
-
-```tsx
-const dependencies: GanttDependency[] = [
-  { fromId: '1', toId: '2', type: 'finish-to-start' },  // Task 1 must finish before Task 2 starts
-  { fromId: '3', toId: '4', type: 'start-to-start' },   // Both start together
-  { fromId: '5', toId: '6', type: 'finish-to-finish' }, // Both finish together
-];
-
-<Gantt tasks={tasks} dependencies={dependencies} />
-```
+The baseline bar automatically aligns perfectly with the task bar. No CSS hacks, no z-index nightmares.
 
 ## Configuration
 
@@ -125,45 +96,18 @@ const dependencies: GanttDependency[] = [
   tasks={tasks}
   config={{
     viewMode: 'week',        // 'day' | 'week' | 'month'
-    rowHeight: 40,           // Height of each row
-    headerHeight: 50,        // Height of timeline header
-    showTaskList: true,      // Show left panel
-    taskListWidth: 360,      // Width of left panel
-    showBaseline: true,      // Show baseline bars
+    showBaseline: true,      // Show those baseline bars
     showDependencies: true,  // Show dependency arrows
-    showTodayMarker: true,   // Show today line
-    showWeekends: true,      // Highlight weekends
-    allowDrag: true,         // Allow dragging tasks
-    allowResize: true,       // Allow resizing tasks
-    locale: 'en-US',         // Date formatting locale
-    firstDayOfWeek: 1,       // 0 = Sunday, 1 = Monday
-    datePadding: 7,          // Days padding around tasks
+    showTodayMarker: true,   // Vertical line for today
+    allowDrag: true,         // Drag to reschedule
+    allowResize: true,       // Resize task duration
   }}
 />
 ```
 
 ## Theming
 
-```tsx
-<Gantt
-  tasks={tasks}
-  theme={{
-    primary: '#2563eb',
-    background: '#ffffff',
-    backgroundAlt: '#f9fafb',
-    text: '#0f172a',
-    textMuted: '#64748b',
-    border: '#e5e7eb',
-    taskBar: '#525252',
-    taskProgress: '#171717',
-    baseline: '#9ca3af',
-    critical: '#dc2626',
-    // ... see GanttTheme type for all options
-  }}
-/>
-```
-
-### Dark Mode
+Comes with light and dark themes out of the box:
 
 ```tsx
 import { Gantt, darkTheme } from 'react-gantt-nl';
@@ -171,34 +115,42 @@ import { Gantt, darkTheme } from 'react-gantt-nl';
 <Gantt tasks={tasks} theme={darkTheme} />
 ```
 
-## Custom Columns
+Or customize everything:
 
 ```tsx
-const columns: GanttColumn[] = [
-  {
-    id: 'name',
-    header: 'Task',
-    width: 200,
-  },
-  {
-    id: 'assignee',
-    header: 'Assignee',
-    width: 100,
-    accessor: (task) => task.payload?.assignee || '-',
-  },
-  {
-    id: 'status',
-    header: 'Status',
-    width: 80,
-    render: (task) => (
-      <span className={`status-${task.progress === 100 ? 'done' : 'active'}`}>
-        {task.progress === 100 ? 'Done' : 'Active'}
-      </span>
-    ),
-  },
+<Gantt
+  tasks={tasks}
+  theme={{
+    primary: '#6366f1',
+    background: '#0f172a',
+    taskBar: '#38bdf8',
+    baseline: '#475569',
+    // ... lots more options
+  }}
+/>
+```
+
+## Task Types
+
+Three flavors:
+
+```tsx
+{ type: 'task' }      // Regular task bar
+{ type: 'milestone' } // Diamond marker
+{ type: 'group' }     // Summary bar (collapses children)
+```
+
+## Dependencies
+
+Connect your tasks:
+
+```tsx
+const dependencies = [
+  { fromId: '1', toId: '2', type: 'finish-to-start' },
+  { fromId: '2', toId: '3', type: 'start-to-start', lag: 2 },
 ];
 
-<Gantt tasks={tasks} columns={columns} />
+<Gantt tasks={tasks} dependencies={dependencies} />
 ```
 
 ## Event Handlers
@@ -206,62 +158,24 @@ const columns: GanttColumn[] = [
 ```tsx
 <Gantt
   tasks={tasks}
-  onTaskDateChange={(event) => {
-    // Called when task is dragged or resized
-    const { task, newStart, newEnd, isResize } = event;
-    updateTaskDates(task.id, newStart, newEnd);
+  onTaskDateChange={(e) => {
+    // Task was dragged or resized
+    updateTask(e.task.id, e.newStart, e.newEnd);
   }}
-  onTaskClick={(event) => {
-    // Called when task is clicked
-    openTaskDetails(event.task.id);
-  }}
-  onTaskDoubleClick={(event) => {
-    // Called when task is double-clicked
-    openTaskEditor(event.task.id);
-  }}
-  onGroupToggle={(taskId, isExpanded) => {
-    // Called when group is expanded/collapsed
-  }}
+  onTaskClick={(e) => openDetails(e.task)}
+  onTaskDoubleClick={(e) => openEditor(e.task)}
+  onGroupToggle={(id, expanded) => { /* ... */ }}
 />
 ```
 
-## API Reference
+## Contributing
 
-### GanttTask
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| id | string | Yes | Unique identifier |
-| name | string | Yes | Display name |
-| type | 'task' \| 'milestone' \| 'group' | Yes | Task type |
-| start | Date | Yes | Start date |
-| end | Date | Yes | End date |
-| progress | number | Yes | Progress (0-100) |
-| baselineStart | Date | No | Baseline start date |
-| baselineEnd | Date | No | Baseline end date |
-| parentId | string | No | Parent task ID for grouping |
-| dependencies | string[] | No | IDs of predecessor tasks |
-| isCritical | boolean | No | On critical path |
-| isDisabled | boolean | No | Disable interactions |
-| color | string | No | Custom bar color |
-| payload | object | No | Custom data |
-
-### GanttDependency
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| fromId | string | Yes | Source task ID |
-| toId | string | Yes | Target task ID |
-| type | DependencyType | Yes | Dependency type |
-| lag | number | No | Lag in days |
-
-### DependencyType
-
-- `finish-to-start` - Predecessor must finish before successor starts
-- `start-to-start` - Both start together
-- `finish-to-finish` - Both finish together
-- `start-to-finish` - Predecessor start triggers successor finish
+Found a bug? Have an idea? PRs and issues are welcome!
 
 ## License
 
-MIT
+MIT - go wild.
+
+---
+
+Built with frustration and determination by someone who just wanted baseline support.

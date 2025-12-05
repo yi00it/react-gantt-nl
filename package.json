@@ -22,7 +22,9 @@
     "build": "tsup src/index.ts --format cjs,esm --dts --external react",
     "dev": "tsup src/index.ts --format cjs,esm --dts --external react --watch",
     "lint": "eslint src/",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "demo": "npm run build && cd demo && npm install && npm run dev",
+    "demo:dev": "cd demo && npm run dev"
   },
   "peerDependencies": {
     "react": ">=17.0.0",
